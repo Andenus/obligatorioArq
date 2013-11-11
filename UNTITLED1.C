@@ -192,18 +192,22 @@ char barco33;
       jp int0ret
 
 	boton0A:
+   	ld B, 00000000b
   		call checkearPrimeraFase
       jp int0ret
 
 	boton0B:
+   	ld B, 00100000b
    	call checkearPrimeraFase
       jp int0ret
 
 	boton0C:
+   	ld B, 01000000b
       call checkearPrimeraFase
       jp int1ret
 
 	boton0D:
+   	ld B, 01100000b
      	call checkearPrimeraFase
       jp int1ret
 
@@ -248,7 +252,12 @@ char barco33;
    	call ledError
 		jp retCheckearPrimeraFase
 
-   bien::
+   bienPrimeraFase::
+      ld A, H
+      add A, 0x01
+      ld H, A
+      ld A, B
+      ioi ld (barco1), A
       jp retCheckearPrimeraFase
 
 
