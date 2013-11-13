@@ -1,4 +1,3 @@
-#use DISPLAYobligatorio.C
 #use ledError.C
 char barco1;
 char barco21;
@@ -31,11 +30,100 @@ char barco33;
       ld A, 00010110b
       ioi ld (I0CR), A
       ioi ld (I1CR), A
-      ld H, 0x01
+      ld E, 0x01
       ld L, 0x01
 
    stop::
+   	ld A, 0x03
+      cp E
+      jp z, agregarBarco
    	jp stop
+
+   agregarBarco::
+   	ld A, 0x01
+      cp L
+      jp z, agBarco31
+      ld A, 0x02
+      cp L
+      jp z, agBarco32
+      ld A, 0x03
+      cp L
+      jp z, agBarco33
+      ld A, 0x04
+      cp L
+      jp z, agBarco21
+      ld A, 0x05
+      cp L
+      jp z, agBarco22
+      ld A, 0x06
+      cp L
+      jp z, agBarco1
+
+   agBarco31::
+   	ld A, B
+      ld (barco31), A
+      ld A, L
+      add A, 0x01
+      ld L, A
+      ld E, 0x01
+      jp stop
+
+   agBarco32::
+   	ld A, B
+      ld (barco32), A
+      ld A, L
+      add A, 0x01
+      ld L, A
+      ld E, 0x01
+      jp stop
+
+   agBarco33::
+   	ld A, B
+      ld (barco33), A
+      ld A, L
+      add A, 0x01
+      ld L, A
+      ld E, 0x01
+      ld A, 01100011b
+      call send
+      ld A, 01100011b
+      call send
+      jp stop
+
+   agBarco21::
+   	ld A, B
+      ld (barco21), A
+      ld A, L
+      add A, 0x01
+      ld L, A
+      ld E, 0x01
+      jp stop
+
+   agBarco22::
+   	ld A, B
+      ld (barco22), A
+      ld A, L
+      add A, 0x01
+      ld L, A
+      ld E, 0x01
+      ld A, 01100011b
+      call send
+      ld A, 01100010b
+      call send
+      jp stop
+
+   agBarco1::
+   	ld A, B
+      ld (barco1), A
+      ld A, L
+      add A, 0x01
+      ld L, A
+      ld E, 0x01
+      ld A, 01100011b
+      call send
+      ld A, 01100001b
+      call send
+      jp stop
 
    int1_isr::
    	ioi ld A, (PEDR)
@@ -43,7 +131,9 @@ char barco33;
       jp z, fila1
       bit 5,A
       jp z, fila3
-      int0ret::
+      int1ret::
+      	ld A,00000000b
+      	ioi ld (PEDR), A
       	call delayBotones
       	ipres
       	ret
@@ -54,7 +144,9 @@ char barco33;
       jp z, fila0
       bit 4,A
       jp z, fila2
-      int1ret::
+      int0ret::
+         ld A,00000000b
+      	ioi ld (PEDR), A
          call delayBotones
       	ipres
       	ret
@@ -153,187 +245,209 @@ char barco33;
 	   ret
 
 	boton00:
-   	ld A,0x02
-      cp H
-      jp z, checkearBarco2
-      call checkearTerceraFase
+      ld A, B
+      add A, 00000000b
+      ld B, A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      ld A, 01100011b
+      call send
+      ld A, 01100000b
+      call send
       jp retBoton00y01
 
    boton01:
-   	ld A,0x02
-      cp H
-      jp z, checkearBarco2
-      call checkearTerceraFase
+      ld A,0x02
+      cp E
+      jp z, sumaSegunda1
+      ld A, B
+      add A, 00000001b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      ld A, 01100011b
+      call send
+      ld A, 01100001b
+      call send
       jp retBoton00y01
 
+   sumaSegunda1::
+   	ld A, 01100011b
+      call send
+      ld A, 01100001b
+      call send
+      ld A, B
+      add A, 00010000b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int1ret
+
    retBoton00y01::
-   	jp int0ret
+   	jp int1ret
 
    boton02:
-      call checkearTerceraFase
-      jp int0ret
+      ld A, 01100011b
+      call send
+      ld A, 01100010b
+      call send
+      ld A, B
+      add A, 00000010b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int1ret
 
    boton03:
-      call checkearTerceraFase
-      jp int0ret
+      ld A, 01100011b
+      call send
+      ld A, 01100011b
+      call send
+      ld A, B
+      add A, 00000011b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int1ret
 
    boton04:
-      call checkearTerceraFase
-      jp int1ret
+      ld A, 01100011b
+      call send
+      ld A, 01100100b
+      call send
+      ld A, B
+      add A, 00000100b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int0ret
 
    boton05:
-      call checkearTerceraFase
-      jp int1ret
+      ld A, 01100011b
+      call send
+      ld A, 01100101b
+      call send
+      ld A, B
+      add A, 00000101b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int0ret
 
    boton06:
-      call checkearTerceraFase
-      jp int1ret
+      ld A, 01100011b
+      call send
+      ld A, 01100110b
+      call send
+      ld A, B
+      add A, 00000110b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int0ret
 
    boton07:
-      call checkearTerceraFase
-      jp int1ret
+      ld A, 01100011b
+      call send
+      ld A, 01100111b
+      call send
+      ld A, B
+      add A, 00000111b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int0ret
 
    boton08:
-   	call checkearTerceraFase
-      jp int0ret
+      ld A, 01100011b
+      call send
+      ld A, 01101000b
+      call send
+      ld A, B
+      add A, 00001000b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int1ret
 
    boton09:
-      call checkearTerceraFase
-      jp int0ret
+      ld A, 01100011b
+      call send
+      ld A, 01101001b
+      call send
+      ld A, B
+      add A, 00001001b
+      ld B,A
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int1ret
 
 	boton0A:
+      ld A, 01100100b
+      call send
+      ld A, 01100001b
+      call send
    	ld B, 00000000b
-  		call checkearPrimeraFase
-      jp int0ret
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int1ret
 
 	boton0B:
+      ld A, 01100100b
+      call send
+      ld A, 01100010b
+      call send
    	ld B, 00100000b
-   	call checkearPrimeraFase
-      jp int0ret
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int1ret
 
 	boton0C:
+      ld A, 01100100b
+      call send
+      ld A, 01100011b
+      call send
    	ld B, 01000000b
-      call checkearPrimeraFase
-      jp int1ret
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int0ret
 
 	boton0D:
+      ld A, 01100100b
+      call send
+      ld A, 01100011b
+      call send
    	ld B, 01100000b
-     	call checkearPrimeraFase
-      jp int1ret
+      ld A, E
+      add A, 0x01
+      ld E, A
+      jp int0ret
 
 	boton0E:
       call mal0
-      jp int1ret
+      jp int0ret
 
    boton0F:
 		call mal0
-      jp int1ret
-
-	checkearPrimeraFase::
-   	ld A,0x01
-      cp H
-      jp z, checkearBarco1
-      jp mal1
-      retCheckearPrimeraFase:
-      	ret
-
-   checkearTerceraFase::
-   	ld A,0x03
-      cp H
-      jp z, bienBarco33
-      jp mal3
-      retCheckearTerceraFase:
-      	ret
+      jp int0ret
 
    mal0::
 	   call ledError
 	   ret
-
-	mal1::
-	   call ledError
-	   jp retCheckearPrimeraFase
-
-	mal3::
-	   call ledError
-	   jp retCheckearTerceraFase
-
-   bienBarco1::
-      ld A, H
-      add A, 0x01
-      ld H, A
-      ioi ld A, (barco1)
-      add A, B
-      ioi ld (barco1), A
-      ld A, L
-      add A, 0x01
-      ld L, A
-      jp retCheckearPrimeraFase
-
-   bienBarco21::
-      ld A, H
-      add A, 0x01
-      ld H, A
-      ioi ld A, (barco21)
-      add A, B
-      ioi ld (barco21), A
-      jp retCheckearPrimeraFase
-
-   bienBarco31::
-      ld A, H
-      add A, 0x01
-      ld H, A
-      ioi ld A, (barco31)
-      add A, B
-      ioi ld (barco31), A
-      jp retCheckearPrimeraFase
-
-   bienBarco22::
-      ld A, H
-      add A, 0x01
-      ld H, A
-      ioi ld A, (barco22)
-      add A, B
-      ioi ld (barco22), A
-      ld A, L
-      add A, 0x01
-      ld L, A
-      jp retBoton00y01
-
-
-   bienBarco32::
-      ld A, H
-      add A, 0x01
-      ld H, A
-      ioi ld A, (barco32)
-      add A, B
-      ioi ld (barco32), A
-      jp retBoton00y01
-
-   bienBarco33::
-      ioi ld A, (barco33)
-      add A, B
-      ioi ld (barco33), A
-      jp retCheckearTerceraFase
-
-
-   checkearBarco1::
-      ld A,0x01
-      cp L
-      jp z, bienBarco1
-      ld A,0x02
-      cp L
-      jp z, bienBarco21
-      ld A,0x03
-      cp L
-      jp z, bienBarco31
-
-   checkearBarco2::
-      ld A,0x02
-      cp L
-      jp z, bienBarco22
-      ld A,0x03
-      cp L
-      jp z, bienBarco32
 
 
    delayBotones:
@@ -354,5 +468,81 @@ char barco33;
 	   pop BC                    ;7
 	   ret
 
+	iniciaDisplay::
+	   ld A, 10000100b
+	   ioi ld (SPCR), A
+	   call delay15ms
+	   ld A, 00100010b      ;Function set
+	   ioi ld (PADR), A
+	   ld A, 00000010b      ;Function set
+	   ioi ld (PADR), A
+	   call delay5ms
+	   ld A, 00100010b      ;Function set
+	   ioi ld (PADR), A
+	   ld A, 00000010b      ;Function set
+	   ioi ld (PADR), A
+	   call delay100us
+	   ld A, 00101000b      ;Function set
+	   call send
+	   ld A, 00100000b      ;Display off
+	   call send
+	   ld A, 00101000b      ;Display off
+	   call send
+	   ld A, 00100000b      ;Clear display
+	   call send
+	   ld A, 00100001b      ;Clear display
+	   call send
+	   ld A, 00100000b      ;Entry mode set
+	   call send
+	   ld A, 00100110b      ;Entry mode set
+	   call send
+	   ld A, 00100000b      ;Display on, cursor on, bilnking off
+	   call send
+	   ld A, 00101110b      ;Display on, cursor on, bilnking off
+	   call send
+	   ret
 
+	send::
+	   push BC
+	   ioi ld (PADR),A
+	   ld B, 00100000b
+	   sub B
+	   ioi ld (PADR),A
+	   call delayinst
+	   pop BC
+	   ret
+
+ delay100us::
+    	ld C, 0xA8          ;4
+   	loop2:
+			nop              ;2
+			dec C            ;2
+		jp NZ, loop2        ;7
+      ret
+
+   delay5ms::
+   	ld B, 0x32
+      loop5ms1::
+      	call delay100us
+         dec D
+         djnz loop5ms1
+      ret
+
+   delay15ms::
+   	push DE
+   	ld E, 0x03
+      loop15ms::
+      	call delay5ms
+         dec E
+         jp NZ, loop15ms
+      pop DE
+      ret
+
+   delayinst::
+   	ld D, 0xB0
+      loopdelayinst::
+      	call delay100us
+         dec D
+         jp NZ, loop5ms1
+      ret
 #endasm

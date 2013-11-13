@@ -38,7 +38,9 @@ void iniciaDisplay (void);
       ret
 #endasm
 
-
+/*** BeginHeader send */
+void send (void);
+/*** EndHeader */
 #asm
    send::
    	push BC
@@ -49,7 +51,9 @@ void iniciaDisplay (void);
       call delayinst
       pop BC
       ret
+#endasm
 
+#asm
 
    delay100us::
     	ld C, 0xA8          ;4
