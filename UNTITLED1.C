@@ -30,60 +30,68 @@ char barco33;
       ld A, 00010110b
       ioi ld (I0CR), A
       ioi ld (I1CR), A
-      ld E, 0x01
-      ld L, 0x01
+      ld E, 0x00
+      ld D, 0x01
 
-   stop::
+   setBarcos::
    	ld A, 0x03
       cp E
       jp z, agregarBarco
-   	jp stop
+   	jp setBarcos
 
    agregarBarco::
    	ld A, 0x01
-      cp L
+      cp D
       jp z, agBarco31
       ld A, 0x02
-      cp L
+      cp D
       jp z, agBarco32
       ld A, 0x03
-      cp L
+      cp D
       jp z, agBarco33
       ld A, 0x04
-      cp L
+      cp D
       jp z, agBarco21
       ld A, 0x05
-      cp L
+      cp D
       jp z, agBarco22
       ld A, 0x06
-      cp L
+      cp D
       jp z, agBarco1
 
    agBarco31::
    	ld A, B
       ld (barco31), A
-      ld A, L
+      ld A, D
       add A, 0x01
-      ld L, A
-      ld E, 0x01
+      ld D, A
+      ld E, 0x00
+      ld A, 01100011b
+      call send
+      ld A, 01100001b
+      call send
       jp stop
 
    agBarco32::
    	ld A, B
       ld (barco32), A
-      ld A, L
+      ld A, D
       add A, 0x01
-      ld L, A
-      ld E, 0x01
+      ld D, A
+      ld E, 0x00
+      ld A, 01100011b
+      call send
+      ld A, 01100010b
+      call send
       jp stop
 
    agBarco33::
    	ld A, B
       ld (barco33), A
-      ld A, L
+      ld A, D
       add A, 0x01
-      ld L, A
-      ld E, 0x01
+      ld D, A
+      ld E, 0x00
       ld A, 01100011b
       call send
       ld A, 01100011b
@@ -93,19 +101,19 @@ char barco33;
    agBarco21::
    	ld A, B
       ld (barco21), A
-      ld A, L
+      ld A, D
       add A, 0x01
-      ld L, A
-      ld E, 0x01
+      ld D, A
+      ld E, 0x00
       jp stop
 
    agBarco22::
    	ld A, B
       ld (barco22), A
-      ld A, L
+      ld A, D
       add A, 0x01
-      ld L, A
-      ld E, 0x01
+      ld D, A
+      ld E, 0x00
       ld A, 01100011b
       call send
       ld A, 01100010b
@@ -115,15 +123,198 @@ char barco33;
    agBarco1::
    	ld A, B
       ld (barco1), A
-      ld A, L
+      ld A, D
       add A, 0x01
-      ld L, A
-      ld E, 0x01
+      ld D, A
+      ld E, 0x00
       ld A, 01100011b
       call send
       ld A, 01100001b
       call send
-      jp stop
+      jp comienzo
+
+   comienzo::
+   	ld A, 0x00
+	   ioi ld (SACR), A
+	   ld A, 11111100b
+	   ioi ld (TACR), A
+	   ld A, 0x3B
+	   ioi ld (TAT4R), A
+	   ld A, 00000001b
+	   ioi ld (TACSR), A
+      ld A, 01000000b
+      ioi ld (PCFR),A
+      ioi ld A, (SASR)
+      bit 7, A
+      jp nz, segundoJugador
+      jp primerJugador
+
+   primerJugador::
+   	ioi ld (SADR), A
+      ioi ld A, (SASR)
+      bit 7, A
+      jp z, primerJugador
+      ioi ld A, (SADR)
+      cp 0x53
+      jp z, turno
+      jp primerJugador
+
+   segundoJugador::
+   	ld A, 0x53
+   	ioi ld (SADR), A
+      jp noTurno
+
+   noTurno::
+      call esperar
+      ld C,0x41
+      sub 0x41
+      ld D, A
+      rlc D
+      call esperar
+      sub 0x30
+      add A, D
+      ld D, A
+      rlc D
+      rlc D
+      rlc D
+      rlc D
+      call esperar
+      sub 0x30
+      add A,D
+      ld D, A
+		ld A, (barco1)
+      cp D
+      jp z, barco1Hun
+      ld A, (barco21)
+      cp D
+      jp z, barco21Toc
+      ld A, (barco22)
+      cp D
+      jp z, barco22Toc
+      ld A, (barco31)
+      cp D
+      jp z, barco31Toc
+      ld A, (barco32)
+      cp D
+      jp z, barco32Toc
+      ld A, (barco33)
+      cp D
+      jp z, barco33Toc
+      jp sendH2O
+
+
+   turno::
+   	ld A, 0x03
+      cp E
+      jp z, enviarCoordenada
+   	jp turno
+
+   enviarCoordenada::
+
+
+   barco1Hun::
+   	ld A, (barco1)
+      add A, 10000000b
+      call sendHun
+      jp turno
+
+   barco21Toc::
+   	ld A, (barco21)
+      add A, 10000000b
+      ld (barco21), A
+      jp verificBar2Hun
+
+   barco22Toc::
+   	ld A, (barco22)
+      add A, 10000000b
+      ld (barco22), A
+      jp verificBar2Hun
+
+   barco31Toc::
+   	ld A, (barco31)
+      add A, 10000000b
+      ld (barco31), A
+      jp verificBar3Hun
+
+   barco32Toc::
+   	ld A, (barco32)
+      add A, 10000000b
+      ld (barco32), A
+      jp verificBar3Hun
+
+   barco33Toc::
+   	ld A, (barco33)
+      add A, 10000000b
+      ld (barco33), A
+      jp verificBar3Hun
+
+   verificBar2Hun::
+   	ld A, (barco21)
+      bit 7, A
+      jp z, sendToc
+      ld A, (barco22)
+      bit 7, A
+      jp z, sendToc
+      jp sendHun
+
+   verificBar3Hun::
+   	ld A, (barco31)
+      bit 7, A
+      jp z, sendToc
+      ld A, (barco32)
+      bit 7, A
+      jp z, sendToc
+      ld A, (barco33)
+      bit 7, A
+      jp z, sendToc
+      jp sendHun
+
+	sendToc::
+	   ioi ld A,(SASR)
+	   bit 2, A
+	   jp nz, sendToc
+	   ld A, 0x54
+	   ioi ld (SADR), A
+	   call delay100us
+	   ld A, 0x4F
+	   ioi ld (SADR), A
+	   call delay100us
+	   ld A, 0x43
+	   ioi ld (SADR), A
+	   call delay100us
+      jp turno
+
+	sendHun::
+      ioi ld A,(SASR)
+      bit 2, A
+      jp nz, sendHun
+      ld A, 0x48
+	   ioi ld (SADR), A
+      call delay100us
+      ld A, 0x55
+	   ioi ld (SADR), A
+      call delay100us
+      ld A, 0x4E
+	   ioi ld (SADR), A
+      call delay100us
+      jp turno
+
+   sendH2O::
+      ioi ld A,(SASR)
+      bit 2, A
+      jp nz, sendH2O
+      ld A, 0x48
+	   ioi ld (SADR), A
+      call delay100us
+      ld A, 0x32
+	   ioi ld (SADR), A
+      call delay100us
+      ld A, 0x4F
+	   ioi ld (SADR), A
+      call delay100us
+      jp turno
+
+
 
    int1_isr::
    	ioi ld A, (PEDR)
@@ -452,7 +643,8 @@ char barco33;
 
    delayBotones:
 	   push BC                   ;10
-	   ld D, 0x02                ;4
+      push DE
+	   ld D, 0x04                ;4
 	   loop0Botones:
 	      ld B, 0x00             ;4
 	      loop1Botones:
@@ -465,6 +657,7 @@ char barco33;
 	         djnz loop1Botones          ;5
 	      dec D                  ;2
 	      jp NZ, loop0Botones           ;7
+      pop DE
 	   pop BC                    ;7
 	   ret
 
@@ -512,37 +705,45 @@ char barco33;
 	   pop BC
 	   ret
 
- delay100us::
-    	ld C, 0xA8          ;4
-   	loop2:
-			nop              ;2
-			dec C            ;2
-		jp NZ, loop2        ;7
+	delay100us::
+	   push BC
+	   ld C, 0xA8          ;4
+	   loop2:
+	      nop              ;2
+	      dec C            ;2
+	      jp NZ, loop2        ;7
+      pop BC
       ret
 
-   delay5ms::
-   	ld B, 0x32
-      loop5ms1::
-      	call delay100us
-         dec D
-         djnz loop5ms1
-      ret
+	delay5ms::
+	   push BC
+	   push DE
+	   ld B, 0x32
+	   loop5ms1::
+	      call delay100us
+	      dec D
+	      djnz loop5ms1
+	   pop DE
+	   pop BC
+	   ret
 
-   delay15ms::
-   	push DE
-   	ld E, 0x03
-      loop15ms::
-      	call delay5ms
-         dec E
-         jp NZ, loop15ms
+	delay15ms::
+	   push DE
+	   ld E, 0x03
+	   loop15ms::
+	      call delay5ms
+	      dec E
+	      jp NZ, loop15ms
       pop DE
       ret
 
-   delayinst::
-   	ld D, 0xB0
-      loopdelayinst::
-      	call delay100us
-         dec D
-         jp NZ, loop5ms1
+	delayinst::
+	   push DE
+	   ld D, 0xB0
+	   loopdelayinst::
+	      call delay100us
+	      dec D
+	      jp NZ, loop5ms1
+      pop DE
       ret
 #endasm
