@@ -153,6 +153,8 @@ char coordenada3;
       jp primerJugador
 
    primerJugador::
+   	ld A, 00000111b
+      ioi ld (PDDR), A
    	ioi ld (SADR), A
       ioi ld A, (SASR)
       bit 7, A
@@ -163,11 +165,16 @@ char coordenada3;
       jp primerJugador
 
    segundoJugador::
+      ld A, 00001111b
+      ioi ld (PDDR), A
    	ld A, 0x53
    	ioi ld (SADR), A
       jp noTurno
 
    noTurno::
+   	ioi ld A, (PDDR)
+      xor 00001000b
+      ioi ld (PDDR), A
       call esperar
       ld C,0x41
       sub 0x41
@@ -213,13 +220,127 @@ char coordenada3;
 	   ret
 
    turno::
+      ioi ld A, (PDDR)
+      xor 00001000b
+      ioi ld (PDDR), A
    	ld A, 0x03
       cp E
       jp z, enviarCoordenada
    	jp turno
 
    enviarCoordenada::
+   	call esperar
+      ld A, (coordenada1)
+      ioi ld (SADR), A
+      call delay5ms
+      ld A, (coordenada2)
+      ioi ld (SADR), A
+      call delay5ms
+      ld A, (coordenada3)
+      ioi ld (SADR), A
+      jp procesarRespuesta
 
+   procesarCoordenada::
+   	ld A, (coordenada1)
+      ld B, A
+   	ld A, 0x41
+      cp B
+      jp z, filaA
+      ld A, 0x42
+      cp B
+      jp z, filaB
+      ld A, 0x43
+      cp B
+      jp z, filaC
+      ld A, 0x44
+      cp B
+      jp z, filaD
+
+
+   filaA::
+   	ld B, 0x00
+      jp parsearFila
+
+   filaB::
+   	ld B, 0x40
+      jp parsearFila
+
+   filaC::
+   	ld B, 0x14
+      jp parsearFila
+
+   filaD::
+   	ld B, 0x54
+      jp parsearFila
+
+	parsearFila::
+      ld A, (coordenada2)
+      sub 0x27
+      add A, B
+      ld B, A
+      ld A, (coordenada3)
+      sub 0x30
+      add A, B
+      ld B, A
+      and 11110000b
+      rrc A
+      rrc A
+      rrc A
+      rrc A
+      add 00101000b
+      ld D, A
+      ld A, B
+      and 00001111b
+      add 00100000b
+      ld B, A
+      ld A, D
+      call send
+      ld A, B
+      call send
+      jp procesarRespuesta
+
+
+
+
+	procesarRespuesta::
+      call esperar
+      ld C, A
+      ld A, 0x48
+      cp C
+      jp z, recibeH
+      ld A, 0x54
+      cp C
+      jp z, recibeToc
+
+
+   recibeToc::
+   	ld A, 01101111b
+      call send
+      ld A, 01101111b
+      jp noTurno
+
+   recibeH::
+      call esperar
+      ld C, A
+      ld A, 0x55
+      cp C
+      jp z,recibeHU
+      ld A, 0x32
+      cp C
+      jp z,recibeH2
+      jp recibeH
+
+   recibeHU::
+      ld A, 01101111b
+      call send
+      ld A, 01101111b
+      jp noTurno
+
+   recibeH2::
+      ld A, 01100111b
+      call send
+      ld A, 01100010b
+      jp noTurno
 
    barco1Hun::
    	ld A, (barco1)
@@ -691,7 +812,6 @@ char coordenada3;
 
    delayBotones:
 	   push DE
-      nop
 	   push BC                   ;10
 	   ld D, 0x04                ;4
 	   loop0Botones:
@@ -707,7 +827,6 @@ char coordenada3;
 	      dec D                  ;2
 	      jp NZ, loop0Botones           ;7
 	   pop BC                    ;7
-      nop
       pop DE
 	   ret
 
