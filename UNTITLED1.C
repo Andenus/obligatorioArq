@@ -69,10 +69,6 @@ char coordenada3;
       add A, 0x01
       ld D, A
       ld E, 0x00
-      ld A, 01100011b
-      call send
-      ld A, 01100001b
-      call send
       jp setBarcos
 
    agBarco32::
@@ -82,10 +78,6 @@ char coordenada3;
       add A, 0x01
       ld D, A
       ld E, 0x00
-      ld A, 01100011b
-      call send
-      ld A, 01100010b
-      call send
       jp setBarcos
 
    agBarco33::
@@ -95,9 +87,9 @@ char coordenada3;
       add A, 0x01
       ld D, A
       ld E, 0x00
-      ld A, 01100011b
+      ld A, 01100010b
       call send
-      ld A, 01100011b
+      ld A, 01100000b
       call send
       jp setBarcos
 
@@ -117,9 +109,9 @@ char coordenada3;
       add A, 0x01
       ld D, A
       ld E, 0x00
-      ld A, 01100011b
-      call send
       ld A, 01100010b
+      call send
+      ld A, 01100000b
       call send
       jp setBarcos
 
@@ -130,16 +122,20 @@ char coordenada3;
       add A, 0x01
       ld D, A
       ld E, 0x00
-      ld A, 01100011b
+      ld A, 01100010b
       call send
-      ld A, 01100001b
+      ld A, 01100000b
       call send
       jp comienzo
 
    comienzo::
+   	ld A, 00100000b
+      call send
+      ld A, 00100001b
+      call send
    	ld A, 0x00
 	   ioi ld (SACR), A
-	   ld A, 11111100b
+	   ld A, 11101100b
 	   ioi ld (TACR), A
 	   ld A, 0x3B
 	   ioi ld (TAT4R), A
@@ -153,12 +149,15 @@ char coordenada3;
       jp primerJugador
 
    primerJugador::
-   	ld A, 00000111b
-      ioi ld (PDDR), A
+   	call delayBotones
+      call delayBotones
+      call delayBotones
    	ioi ld (SADR), A
       ioi ld A, (SASR)
       bit 7, A
       jp z, primerJugador
+      ld A, 00000111b
+      ioi ld (PDDR), A
       ioi ld A, (SADR)
       cp 0x53
       jp z, turno
@@ -172,11 +171,11 @@ char coordenada3;
       jp noTurno
 
    noTurno::
+   	ld E, 0x00
    	ioi ld A, (PDDR)
       xor 00001000b
       ioi ld (PDDR), A
       call esperar
-      ld C,0x41
       sub 0x41
       ld D, A
       rlc D
@@ -229,7 +228,6 @@ char coordenada3;
    	jp turno
 
    enviarCoordenada::
-   	call esperar
       ld A, (coordenada1)
       ioi ld (SADR), A
       call delay5ms
@@ -238,7 +236,7 @@ char coordenada3;
       call delay5ms
       ld A, (coordenada3)
       ioi ld (SADR), A
-      jp procesarRespuesta
+      jp procesarCoordenada
 
    procesarCoordenada::
    	ld A, (coordenada1)
@@ -274,10 +272,15 @@ char coordenada3;
       jp parsearFila
 
 	parsearFila::
+      ld B, (coordenada2)
+      ld A, 0x30
+      cp B
+      jp z, esCero
       ld A, (coordenada2)
       sub 0x27
       add A, B
       ld B, A
+      retParsear::
       ld A, (coordenada3)
       sub 0x30
       add A, B
@@ -300,7 +303,12 @@ char coordenada3;
       jp procesarRespuesta
 
 
-
+   esCero::
+      ld A, (coordenada2)
+      sub 0x30
+      add A, B
+      ld B, A
+      jp retParsear
 
 	procesarRespuesta::
       call esperar
@@ -317,6 +325,7 @@ char coordenada3;
    	ld A, 01101111b
       call send
       ld A, 01101111b
+      call send
       jp noTurno
 
    recibeH::
@@ -334,12 +343,14 @@ char coordenada3;
       ld A, 01101111b
       call send
       ld A, 01101111b
+      call send
       jp noTurno
 
    recibeH2::
       ld A, 01100111b
       call send
       ld A, 01100010b
+      call send
       jp noTurno
 
    barco1Hun::
@@ -405,13 +416,13 @@ char coordenada3;
 	   jp nz, sendToc
 	   ld A, 0x54
 	   ioi ld (SADR), A
-	   call delay100us
+	   call delay5ms
 	   ld A, 0x4F
 	   ioi ld (SADR), A
-	   call delay100us
+	   call delay5ms
 	   ld A, 0x43
 	   ioi ld (SADR), A
-	   call delay100us
+	   call delay5ms
       jp turno
 
 	sendHun::
@@ -420,13 +431,13 @@ char coordenada3;
       jp nz, sendHun
       ld A, 0x48
 	   ioi ld (SADR), A
-      call delay100us
+      call delay5ms
       ld A, 0x55
 	   ioi ld (SADR), A
-      call delay100us
+      call delay5ms
       ld A, 0x4E
 	   ioi ld (SADR), A
-      call delay100us
+      call delay5ms
       jp turno
 
    sendH2O::
@@ -435,13 +446,13 @@ char coordenada3;
       jp nz, sendH2O
       ld A, 0x48
 	   ioi ld (SADR), A
-      call delay100us
+      call delay5ms
       ld A, 0x32
 	   ioi ld (SADR), A
-      call delay100us
+      call delay5ms
       ld A, 0x4F
 	   ioi ld (SADR), A
-      call delay100us
+      call delay5ms
       jp turno
 
 
@@ -787,7 +798,7 @@ char coordenada3;
 	boton0D:
       ld A, 01100100b
       call send
-      ld A, 01100011b
+      ld A, 01100100b
       call send
       ld A, 0x44
       ld (coordenada1), A
