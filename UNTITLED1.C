@@ -5,6 +5,9 @@ char barco22;
 char barco31;
 char barco32;
 char barco33;
+char coordenada1;
+char coordenada2;
+char coordenada3;
 
 #asm
    main::
@@ -70,7 +73,7 @@ char barco33;
       call send
       ld A, 01100001b
       call send
-      jp stop
+      jp setBarcos
 
    agBarco32::
    	ld A, B
@@ -83,7 +86,7 @@ char barco33;
       call send
       ld A, 01100010b
       call send
-      jp stop
+      jp setBarcos
 
    agBarco33::
    	ld A, B
@@ -96,7 +99,7 @@ char barco33;
       call send
       ld A, 01100011b
       call send
-      jp stop
+      jp setBarcos
 
    agBarco21::
    	ld A, B
@@ -105,7 +108,7 @@ char barco33;
       add A, 0x01
       ld D, A
       ld E, 0x00
-      jp stop
+      jp setBarcos
 
    agBarco22::
    	ld A, B
@@ -118,7 +121,7 @@ char barco33;
       call send
       ld A, 01100010b
       call send
-      jp stop
+      jp setBarcos
 
    agBarco1::
    	ld A, B
@@ -202,6 +205,12 @@ char barco33;
       jp z, barco33Toc
       jp sendH2O
 
+	esperar::
+	   ioi ld A, (SASR)
+	   bit 7, A
+	   jp z, esperar
+	   ioi ld A, (SADR)
+	   ret
 
    turno::
    	ld A, 0x03
@@ -210,6 +219,18 @@ char barco33;
    	jp turno
 
    enviarCoordenada::
+   	call esperar
+      ld A, (coordenada1)
+      ioi ld (SADR), A
+      call delay5ms
+      ld A, (coordenada2)
+      ioi ld (SADR), A
+      call delay5ms
+      ld A, (coordenada3)
+      ioi ld (SADR), A
+      jp procesarRespuesta
+
+   procesarRespuesta::
 
 
    barco1Hun::
@@ -439,6 +460,12 @@ char barco33;
       ld A, B
       add A, 00000000b
       ld B, A
+      ld A,0x02
+      cp E
+      jp z, coordenadaSegunda0
+      ld A, 0x30
+      ld (coordenada3), A
+      volverBoton0::
       ld A, E
       add A, 0x01
       ld E, A
@@ -448,10 +475,17 @@ char barco33;
       call send
       jp retBoton00y01
 
+	coordenadaSegunda0::
+   	ld A, 0x30
+      ld (coordenada2), A
+      jp volverBoton0
+
    boton01:
       ld A,0x02
       cp E
       jp z, sumaSegunda1
+      ld A, 0x31
+      ld (coordenada3), A
       ld A, B
       add A, 00000001b
       ld B,A
@@ -469,6 +503,8 @@ char barco33;
       call send
       ld A, 01100001b
       call send
+      ld A, 0x31
+      ld (coordenada2), A
       ld A, B
       add A, 00010000b
       ld B,A
@@ -485,6 +521,8 @@ char barco33;
       call send
       ld A, 01100010b
       call send
+      ld A, 0x32
+      ld (coordenada3), A
       ld A, B
       add A, 00000010b
       ld B,A
@@ -498,6 +536,8 @@ char barco33;
       call send
       ld A, 01100011b
       call send
+      ld A, 0x33
+      ld (coordenada3), A
       ld A, B
       add A, 00000011b
       ld B,A
@@ -511,6 +551,8 @@ char barco33;
       call send
       ld A, 01100100b
       call send
+      ld A, 0x34
+      ld (coordenada3), A
       ld A, B
       add A, 00000100b
       ld B,A
@@ -524,6 +566,8 @@ char barco33;
       call send
       ld A, 01100101b
       call send
+      ld A, 0x35
+      ld (coordenada3), A
       ld A, B
       add A, 00000101b
       ld B,A
@@ -537,6 +581,8 @@ char barco33;
       call send
       ld A, 01100110b
       call send
+      ld A, 0x36
+      ld (coordenada3), A
       ld A, B
       add A, 00000110b
       ld B,A
@@ -550,6 +596,8 @@ char barco33;
       call send
       ld A, 01100111b
       call send
+      ld A, 0x37
+      ld (coordenada3), A
       ld A, B
       add A, 00000111b
       ld B,A
@@ -563,6 +611,8 @@ char barco33;
       call send
       ld A, 01101000b
       call send
+      ld A, 0x38
+      ld (coordenada3), A
       ld A, B
       add A, 00001000b
       ld B,A
@@ -576,6 +626,8 @@ char barco33;
       call send
       ld A, 01101001b
       call send
+      ld A, 0x39
+      ld (coordenada3), A
       ld A, B
       add A, 00001001b
       ld B,A
@@ -589,6 +641,8 @@ char barco33;
       call send
       ld A, 01100001b
       call send
+      ld A, 0x41
+      ld (coordenada1), A
    	ld B, 00000000b
       ld A, E
       add A, 0x01
@@ -600,6 +654,8 @@ char barco33;
       call send
       ld A, 01100010b
       call send
+      ld A, 0x42
+      ld (coordenada1), A
    	ld B, 00100000b
       ld A, E
       add A, 0x01
@@ -611,6 +667,8 @@ char barco33;
       call send
       ld A, 01100011b
       call send
+      ld A, 0x43
+      ld (coordenada1), A
    	ld B, 01000000b
       ld A, E
       add A, 0x01
@@ -622,6 +680,8 @@ char barco33;
       call send
       ld A, 01100011b
       call send
+      ld A, 0x44
+      ld (coordenada1), A
    	ld B, 01100000b
       ld A, E
       add A, 0x01
@@ -642,8 +702,8 @@ char barco33;
 
 
    delayBotones:
+	   push DE
 	   push BC                   ;10
-      push DE
 	   ld D, 0x04                ;4
 	   loop0Botones:
 	      ld B, 0x00             ;4
@@ -657,8 +717,8 @@ char barco33;
 	         djnz loop1Botones          ;5
 	      dec D                  ;2
 	      jp NZ, loop0Botones           ;7
-      pop DE
 	   pop BC                    ;7
+      pop DE
 	   ret
 
 	iniciaDisplay::
@@ -717,33 +777,49 @@ char barco33;
 
 	delay5ms::
 	   push BC
-	   push DE
 	   ld B, 0x32
 	   loop5ms1::
-	      call delay100us
-	      dec D
+         ld C, 0xA8          ;4
+	   	loopDelay5ms2:
+	      	nop              ;2
+	      	dec C            ;2
+	      	jp NZ, loopDelay5ms2
+         	nop
 	      djnz loop5ms1
-	   pop DE
 	   pop BC
 	   ret
 
 	delay15ms::
 	   push DE
+      push BC
 	   ld E, 0x03
 	   loop15ms::
-	      call delay5ms
+         ld B, 0x32
+	   	loop15ms2::
+         	ld C, 0xA8          ;4
+	   		loopDelay15ms3:
+	      		nop              ;2
+	      		dec C            ;2
+	      		jp NZ, loopDelay15ms3
+         		nop
+	      	djnz loop15ms2
 	      dec E
 	      jp NZ, loop15ms
+      pop BC
       pop DE
       ret
 
 	delayinst::
-	   push DE
-	   ld D, 0xB0
+      push BC
+	   ld B, 0xB0
 	   loopdelayinst::
-	      call delay100us
-	      dec D
-	      jp NZ, loop5ms1
-      pop DE
+         ld C, 0xA8          ;4
+	   	loopDelayInst2:
+	      	nop              ;2
+	      	dec C            ;2
+	     		jp NZ, loopDelayInst2
+	      dec B
+	      jp NZ, loopdelayinst
+      pop BC
       ret
 #endasm
