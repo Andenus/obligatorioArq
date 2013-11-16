@@ -1,4 +1,3 @@
-#use ledError.C
 char barco1;
 char barco21;
 char barco22;
@@ -276,6 +275,7 @@ char coordenada3;
       sub 0x27
       add A, B
       ld B, A
+      retParsear::
       ld A, (coordenada3)
       sub 0x30
       add A, B
@@ -296,8 +296,6 @@ char coordenada3;
       ld A, B
       call send
       jp procesarRespuesta
-
-
 
 
 	procesarRespuesta::
@@ -567,8 +565,6 @@ char coordenada3;
 	   ret
 
 	boton00:
-   	ld A, 0x30
-   	ioi (SADR), A
       ld A, B
       add A, 00000000b
       ld B, A
@@ -593,8 +589,6 @@ char coordenada3;
       jp volverBoton0
 
    boton01:
-      ld A, 0x31
-   	ioi (SADR), A
       ld A,0x02
       cp E
       jp z, sumaSegunda1
@@ -934,6 +928,41 @@ char coordenada3;
 	     		jp NZ, loopDelayInst2
 	      dec B
 	      jp NZ, loopdelayinst
+      pop BC
+      ret
+
+   ledError::
+   	ld A,0x0F
+      ioi ld (PDDDR),A
+      ld B, 0x0A
+      call loop
+      ret
+
+   loop::
+   	ld A,0x0F
+      ioi ld (PDDR),A
+      call delay
+      ld A, 0x00
+      ioi ld (PDDR),A
+      call delay
+		djnz loop
+      ret
+
+   delay::
+   	push BC
+   	ld D, 0x20
+      loopDelay0:
+      	ld B, 0x80  ;AA
+	      loopDelay1:
+	         ld C, 0x30  ;CC
+	         loopDelay2:
+	            nop
+               srl(IX+2)
+	            dec C
+	            jr NZ, loopDelay2
+	         djnz loopDelay1
+         dec D
+         jr NZ, loopDelay0
       pop BC
       ret
 #endasm

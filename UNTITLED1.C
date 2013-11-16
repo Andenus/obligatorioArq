@@ -1,4 +1,3 @@
-#use ledError.C
 char barco1;
 char barco21;
 char barco22;
@@ -272,10 +271,6 @@ char coordenada3;
       jp parsearFila
 
 	parsearFila::
-      ld B, (coordenada2)
-      ld A, 0x30
-      cp B
-      jp z, esCero
       ld A, (coordenada2)
       sub 0x27
       add A, B
@@ -302,13 +297,6 @@ char coordenada3;
       call send
       jp procesarRespuesta
 
-
-   esCero::
-      ld A, (coordenada2)
-      sub 0x30
-      add A, B
-      ld B, A
-      jp retParsear
 
 	procesarRespuesta::
       call esperar
@@ -940,6 +928,41 @@ char coordenada3;
 	     		jp NZ, loopDelayInst2
 	      dec B
 	      jp NZ, loopdelayinst
+      pop BC
+      ret
+
+   ledError::
+   	ld A,0x0F
+      ioi ld (PDDDR),A
+      ld B, 0x0A
+      call loop
+      ret
+
+   loop::
+   	ld A,0x0F
+      ioi ld (PDDR),A
+      call delay
+      ld A, 0x00
+      ioi ld (PDDR),A
+      call delay
+		djnz loop
+      ret
+
+   delay::
+   	push BC
+   	ld D, 0x20
+      loopDelay0:
+      	ld B, 0x80  ;AA
+	      loopDelay1:
+	         ld C, 0x30  ;CC
+	         loopDelay2:
+	            nop
+               srl(IX+2)
+	            dec C
+	            jr NZ, loopDelay2
+	         djnz loopDelay1
+         dec D
+         jr NZ, loopDelay0
       pop BC
       ret
 #endasm
